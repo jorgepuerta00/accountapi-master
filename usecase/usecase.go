@@ -5,12 +5,12 @@ import (
 )
 
 type ManageUseCaseInterface interface {
-	Create(account *model.Account) (resultAccount *model.Account, err error)
-	Delete(account *model.Account) error
+	Create(account *model.AccountData) (resultAccount *model.AccountData, err error)
+	Delete(account *model.AccountData) error
 }
 
 type ListAccountUseCaseInterface interface {
-	ListAccount() ([]model.Account, error)
-	Find(id int) (*model.Account, error)
+	ListAccount() ([]model.AccountData, error)
+	Find(id int) (*model.AccountData, error)
 }
 
