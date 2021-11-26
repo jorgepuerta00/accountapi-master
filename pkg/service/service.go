@@ -1,17 +1,19 @@
 package service
 
 import (
-	"accountapi-master/pkg/model"
-	"accountapi-master/pkg/repository"
+	"context"
+
+	"github.com/jorgepuerta00/accountapi-master/pkg/model"
+	"github.com/jorgepuerta00/accountapi-master/pkg/repository"
 
 	"github.com/sirupsen/logrus"
 )
 
 type Service interface {
-	CreateAccount(account *model.Account) (resultAccount *model.Account, err error)
-	DeleteAccount(id string) (bool, error)
-	ListAccounts() ([]model.Account, error)
-	FindAccount(id string) (*model.Account, error)
+	Create(context.Context, model.Account) (resultAccount model.Account, err error)
+	Delete(context.Context, string) (bool, error)
+	List(context.Context) ([]model.Account, error)
+	Fetch(context.Context, string) (*model.Account, error)
 }
 
 func NewAccountService(logger logrus.FieldLogger, repo repository.AccountRepository) *AccountService {
@@ -25,34 +27,34 @@ type AccountService struct {
 	logger logrus.FieldLogger
 }
 
-func (ms *AccountService) CreateAccount(account *model.Account) (resultAccount *model.Account, err error) {
-	accountResult, err := ms.repo.Create(account)
+func (ms *AccountService) Create(ctx context.Context, account model.Account) (model.Account, error) {
+	accountResult, err := ms.repo.Create(ctx, account)
 	if err != nil {
-		return &model.Account{}, err
+		return model.Account{}, err
 	}
 	return accountResult, nil
 }
 
-func (ms *AccountService) DeleteAccount(id string) (bool, error) {
-	accountResult, err := ms.repo.Delete(id)
+func (ms *AccountService) Delete(ctx context.Context, id string) (bool, error) {
+	accountResult, err := ms.repo.Delete(ctx, id)
 	if err != nil {
 		return accountResult, err
 	}
 	return accountResult, nil
 }
 
-func (ms *AccountService) ListAccounts() ([]model.Account, error) {
-	accountResult, err := ms.repo.GetAll()
+func (ms *AccountService) List(ctx context.Context) ([]model.Account, error) {
+	accountResult, err := ms.repo.GetAll(ctx)
 	if err != nil {
-		return nil, err
+		return []model.Account{}, err
 	}
 	return accountResult, nil
 }
 
-func (ms *AccountService) FindAccount(id string) (*model.Account, error) {
-	accountResult, err := ms.repo.Get(id)
+func (ms *AccountService) Fetch(ctx context.Context, id string) (model.Account, error) {
+	accountResult, err := ms.repo.GetById(ctx, id)
 	if err != nil {
-		return &model.Account{}, err
+		return model.Account{}, err
 	}
 	return accountResult, nil
 }

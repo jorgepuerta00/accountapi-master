@@ -1,9 +1,10 @@
 package server
 
 import (
-	"accountapi-master/pkg/service"
 	"fmt"
 	"net/http"
+
+	"github.com/jorgepuerta00/accountapi-master/pkg/service"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
