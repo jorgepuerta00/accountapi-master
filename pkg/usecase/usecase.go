@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"accountapi-master/model"
+	"accountapi-master/pkg/model"
 )
 
 type ManageAccountUseCaseInterface interface {
@@ -10,6 +10,6 @@ type ManageAccountUseCaseInterface interface {
 }
 
 type ListAccountUseCaseInterface interface {
-	ListAccount() ([]model.Account, error)
+	ListAccounts() ([]model.Account, error)
 	Find(id int) (*model.Account, error)
 }
