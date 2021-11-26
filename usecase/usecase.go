@@ -1,16 +1,15 @@
 package usecase
 
 import (
-	"github.com/jorgepuerta00/accountapi-master/model"
+	"accountapi-master/model"
 )
 
-type ManageUseCaseInterface interface {
-	Create(account *model.AccountData) (resultAccount *model.AccountData, err error)
-	Delete(account *model.AccountData) error
+type ManageAccountUseCaseInterface interface {
+	Create(account *model.Account) (resultAccount *model.Account, err error)
+	Delete(account *model.Account) error
 }
 
 type ListAccountUseCaseInterface interface {
-	ListAccount() ([]model.AccountData, error)
-	Find(id int) (*model.AccountData, error)
+	ListAccount() ([]model.Account, error)
+	Find(id int) (*model.Account, error)
 }
-
