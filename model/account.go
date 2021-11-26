@@ -1,6 +1,6 @@
 package model
 
-type AccountData struct {
+type Account struct {
 	Attributes     *AccountAttributes `json:"attributes,omitempty"`
 	ID             string             `json:"id,omitempty"`
 	OrganisationID string             `json:"organisation_id,omitempty"`
