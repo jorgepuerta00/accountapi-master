@@ -35,8 +35,8 @@ func (mr *AccountRepo) Create(ctx context.Context, account model.Account) (model
 	return accountResult, nil
 }
 
-func (mr *AccountRepo) Delete(ctx context.Context, id string) (bool, error) {
-	accountResult, err := mr.externalHTTPClient.Delete(ctx, id)
+func (mr *AccountRepo) Delete(ctx context.Context, id string, version int) (bool, error) {
+	accountResult, err := mr.externalHTTPClient.Delete(ctx, id, version)
 	if err != nil {
 		mr.logger.Error(
 			"AccountRepo.Delete",

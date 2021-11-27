@@ -1,14 +1,20 @@
 package httpclient
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/jorgepuerta00/accountapi-master/pkg/model"
 	"github.com/sirupsen/logrus"
 )
+
+type body struct {
+	Data interface{} `json:"data"`
+}
 
 type consumable interface {
 	Do(req *http.Request) (*http.Response, error)
@@ -24,9 +30,9 @@ type APIRecruitClient struct {
 
 type ExternalSource interface {
 	Create(context.Context, model.Account) (model.Account, error)
-	Delete(context.Context, string) (bool, error)
+	Delete(ctx context.Context, id string, version int) (bool, error)
 	GetAll(context.Context) ([]model.Account, error)
-	GetById(context.Context, string) (model.Account, error)
+	GetById(ctx context.Context, id string) (model.Account, error)
 }
 
 func NewAPIRecruitClient(logger logrus.FieldLogger, baseURL string) *APIRecruitClient {
@@ -38,7 +44,16 @@ func NewAPIRecruitClient(logger logrus.FieldLogger, baseURL string) *APIRecruitC
 }
 
 func (c APIRecruitClient) Create(ctx context.Context, account model.Account) (model.Account, error) {
-	resp, err := c.httpClient.Get(c.baseURL)
+
+	body := body{Data: account}
+	payload := new(bytes.Buffer)
+
+	err := json.NewEncoder(payload).Encode(&body)
+	if err != nil {
+		return model.Account{}, err
+	}
+
+	resp, err := c.httpClient.Post(c.baseURL, "application/json", payload)
 	if err != nil {
 		return model.Account{}, err
 	}
@@ -55,8 +70,11 @@ func (c APIRecruitClient) Create(ctx context.Context, account model.Account) (mo
 	return accountResponse, nil
 }
 
-func (c APIRecruitClient) Delete(ctx context.Context, id string) (bool, error) {
-	resp, err := c.httpClient.Get(c.baseURL)
+func (c APIRecruitClient) Delete(ctx context.Context, id string, version int) (bool, error) {
+
+	url := fmt.Sprintf("%s/%s?version=%d", c.baseURL, id, version)
+
+	resp, err := c.customRequest(http.MethodDelete, url, nil)
 	if err != nil {
 		return false, err
 	}
@@ -92,7 +110,10 @@ func (c APIRecruitClient) GetAll(ctx context.Context) ([]model.Account, error) {
 }
 
 func (c APIRecruitClient) GetById(ctx context.Context, id string) (model.Account, error) {
-	resp, err := c.httpClient.Get(c.baseURL)
+
+	url := fmt.Sprintf("%s/%s", c.baseURL, id)
+
+	resp, err := c.httpClient.Get(url)
 	if err != nil {
 		return model.Account{}, err
 	}

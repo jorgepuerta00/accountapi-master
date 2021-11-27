@@ -11,9 +11,9 @@ import (
 
 type Service interface {
 	Create(context.Context, model.Account) (resultAccount model.Account, err error)
-	Delete(context.Context, string) (bool, error)
+	Delete(ctx context.Context, id string, version int) (bool, error)
 	List(context.Context) ([]model.Account, error)
-	Fetch(context.Context, string) (*model.Account, error)
+	Fetch(ctx context.Context, id string) (*model.Account, error)
 }
 
 func NewAccountService(logger logrus.FieldLogger, repo repository.AccountRepository) *AccountService {
@@ -35,8 +35,8 @@ func (ms *AccountService) Create(ctx context.Context, account model.Account) (mo
 	return accountResult, nil
 }
 
-func (ms *AccountService) Delete(ctx context.Context, id string) (bool, error) {
-	accountResult, err := ms.repo.Delete(ctx, id)
+func (ms *AccountService) Delete(ctx context.Context, id string, version int) (bool, error) {
+	accountResult, err := ms.repo.Delete(ctx, id, version)
 	if err != nil {
 		return accountResult, err
 	}

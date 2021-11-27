@@ -8,7 +8,7 @@ import (
 
 type AccountRepository interface {
 	Create(context.Context, model.Account) (model.Account, error)
-	Delete(context.Context, string) (bool, error)
+	Delete(ctx context.Context, id string, version int) (bool, error)
 	GetAll(context.Context) ([]model.Account, error)
-	GetById(context.Context, string) (model.Account, error)
+	GetById(ctx context.Context, id string) (model.Account, error)
 }
