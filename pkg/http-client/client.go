@@ -12,6 +12,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type ExternalSource interface {
+	Create(context.Context, model.Account) (model.Account, error)
+	Delete(ctx context.Context, id string, version int) (bool, error)
+	GetAll(context.Context) ([]model.Account, error)
+	GetById(ctx context.Context, id string) (model.Account, error)
+}
+
 type body struct {
 	Data interface{} `json:"data"`
 }
@@ -28,13 +35,6 @@ type APIRecruitClient struct {
 	logger     logrus.FieldLogger
 }
 
-type ExternalSource interface {
-	Create(context.Context, model.Account) (model.Account, error)
-	Delete(ctx context.Context, id string, version int) (bool, error)
-	GetAll(context.Context) ([]model.Account, error)
-	GetById(ctx context.Context, id string) (model.Account, error)
-}
-
 func NewAPIRecruitClient(logger logrus.FieldLogger, baseURL string) *APIRecruitClient {
 	return &APIRecruitClient{
 		baseURL:    baseURL,
@@ -44,7 +44,6 @@ func NewAPIRecruitClient(logger logrus.FieldLogger, baseURL string) *APIRecruitC
 }
 
 func (c APIRecruitClient) Create(ctx context.Context, account model.Account) (model.Account, error) {
-
 	body := body{Data: account}
 	payload := new(bytes.Buffer)
 
@@ -71,7 +70,6 @@ func (c APIRecruitClient) Create(ctx context.Context, account model.Account) (mo
 }
 
 func (c APIRecruitClient) Delete(ctx context.Context, id string, version int) (bool, error) {
-
 	url := fmt.Sprintf("%s/%s?version=%d", c.baseURL, id, version)
 
 	resp, err := c.customRequest(http.MethodDelete, url, nil)
@@ -110,7 +108,6 @@ func (c APIRecruitClient) GetAll(ctx context.Context) ([]model.Account, error) {
 }
 
 func (c APIRecruitClient) GetById(ctx context.Context, id string) (model.Account, error) {
-
 	url := fmt.Sprintf("%s/%s", c.baseURL, id)
 
 	resp, err := c.httpClient.Get(url)

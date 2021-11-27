@@ -16,15 +16,15 @@ type Service interface {
 	Fetch(ctx context.Context, id string) (*model.Account, error)
 }
 
+type AccountService struct {
+	repo   repository.AccountRepository
+	logger logrus.FieldLogger
+}
+
 func NewAccountService(logger logrus.FieldLogger, repo repository.AccountRepository) *AccountService {
 	return &AccountService{
 		repo: repo,
 	}
-}
-
-type AccountService struct {
-	repo   repository.AccountRepository
-	logger logrus.FieldLogger
 }
 
 func (ms *AccountService) Create(ctx context.Context, account model.Account) (model.Account, error) {

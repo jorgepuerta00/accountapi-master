@@ -45,7 +45,9 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+    environment:
+      - BASE_URL=http://accountapi:8080/v1/organisation/accounts
     depends_on:
       - accountapi
     networks:
-      - tests
+      - client-form3tech
