@@ -15,8 +15,8 @@ import (
 type ExternalSource interface {
 	Create(context.Context, model.Account) (model.Account, error)
 	Delete(ctx context.Context, id string, version int) (bool, error)
+	Get(ctx context.Context, id string) (model.Account, error)
 	GetAll(context.Context) ([]model.Account, error)
-	GetById(ctx context.Context, id string) (model.Account, error)
 }
 
 type body struct {
@@ -89,25 +89,7 @@ func (c APIRecruitClient) Delete(ctx context.Context, id string, version int) (b
 	return true, nil
 }
 
-func (c APIRecruitClient) GetAll(ctx context.Context) ([]model.Account, error) {
-	resp, err := c.httpClient.Get(c.baseURL)
-	if err != nil {
-		return []model.Account{}, err
-	}
-
-	defer resp.Body.Close()
-
-	accountResponse := []model.Account{}
-
-	if err := json.NewDecoder(resp.Body).Decode(&accountResponse); err != nil {
-		c.logger.Error("APIRecruitClient.GetAll", "error:", err)
-		return []model.Account{}, err
-	}
-
-	return accountResponse, nil
-}
-
-func (c APIRecruitClient) GetById(ctx context.Context, id string) (model.Account, error) {
+func (c APIRecruitClient) Get(ctx context.Context, id string) (model.Account, error) {
 	url := fmt.Sprintf("%s/%s", c.baseURL, id)
 
 	resp, err := c.httpClient.Get(url)
@@ -122,6 +104,24 @@ func (c APIRecruitClient) GetById(ctx context.Context, id string) (model.Account
 	if err := json.NewDecoder(resp.Body).Decode(&accountResponse); err != nil {
 		c.logger.Error("APIRecruitClient.Get", "error:", err)
 		return model.Account{}, err
+	}
+
+	return accountResponse, nil
+}
+
+func (c APIRecruitClient) GetAll(ctx context.Context) ([]model.Account, error) {
+	resp, err := c.httpClient.Get(c.baseURL)
+	if err != nil {
+		return []model.Account{}, err
+	}
+
+	defer resp.Body.Close()
+
+	accountResponse := []model.Account{}
+
+	if err := json.NewDecoder(resp.Body).Decode(&accountResponse); err != nil {
+		c.logger.Error("APIRecruitClient.GetAll", "error:", err)
+		return []model.Account{}, err
 	}
 
 	return accountResponse, nil
