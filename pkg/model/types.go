@@ -1,8 +1,8 @@
 package model
 
 type PageParams struct {
-	page int
-	size int
+	Page int
+	Size int
 }
 
 type Result struct {

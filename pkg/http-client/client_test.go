@@ -147,5 +147,29 @@ func (t *APIRecruitClientTestSuite) Test_Get_NotFound() {
 }
 
 func (t *APIRecruitClientTestSuite) Test_GetAll() {
-	assert.Equal(t.T(), true, true)
+	result, resp, err := t.client.GetAll(model.PageParams{})
+	assert.NoError(t.T(), err)
+	assert.True(t.T(), len(result) > 0)
+	assert.Equal(t.T(), http.StatusOK, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_GetAll_Page() {
+	result, resp, err := t.client.GetAll(model.PageParams{Page: 5})
+	assert.NoError(t.T(), err)
+	assert.True(t.T(), len(result) == 0)
+	assert.Equal(t.T(), http.StatusOK, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_GetAll_Size() {
+	result, resp, err := t.client.GetAll(model.PageParams{Size: 5})
+	assert.NoError(t.T(), err)
+	assert.True(t.T(), len(result) > 0)
+	assert.Equal(t.T(), http.StatusOK, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_GetAll_PagginingParams() {
+	result, resp, err := t.client.GetAll(model.PageParams{Page: 5, Size: 5})
+	assert.NoError(t.T(), err)
+	assert.True(t.T(), len(result) > 0)
+	assert.Equal(t.T(), http.StatusOK, resp.StatusCode)
 }

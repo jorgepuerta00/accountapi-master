@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"github.com/jorgepuerta00/accountapi-master/pkg/model"
 	"github.com/sirupsen/logrus"
@@ -133,9 +135,9 @@ func (c APIRecruitClient) Get(id string) (model.Account, *http.Response, error) 
 
 func (c APIRecruitClient) GetAll(pageParams model.PageParams) ([]model.Account, *http.Response, error) {
 
-	//url := fmt.Sprintf("%s/?page[number]=%d&page[size]=%d", c.baseURL, pageParams.page, pageParams.size)
+	url := solveParamsUrl(c.baseURL, pageParams)
 
-	resp, err := c.httpClient.Get(c.baseURL)
+	resp, err := c.httpClient.Get(url)
 	if err != nil {
 		return []model.Account{}, resp, err
 	}
@@ -161,6 +163,25 @@ func (c APIRecruitClient) GetAll(pageParams model.PageParams) ([]model.Account, 
 	}
 
 	return getallResponse.Data, resp, nil
+}
+
+func solveParamsUrl(baseURL string, pageParams model.PageParams) string {
+	url, err := url.Parse(baseURL)
+	if err != nil {
+		return ""
+	}
+	urlQuery := url.Query()
+
+	if pageParams.Page >= 0 {
+		urlQuery.Set("page[number]", strconv.Itoa(pageParams.Page))
+	}
+	if pageParams.Size >= 0 {
+		urlQuery.Set("page[size]", strconv.Itoa(pageParams.Size))
+	}
+
+	url.RawQuery = urlQuery.Encode()
+
+	return url.String()
 }
 
 func (c *APIRecruitClient) customRequest(method string, url string, body io.Reader) (*http.Response, error) {
