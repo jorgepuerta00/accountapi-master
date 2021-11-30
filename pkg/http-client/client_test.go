@@ -1,17 +1,15 @@
 package httpclient
 
 import (
-	"bytes"
-	"context"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/jorgepuerta00/accountapi-master/pkg/model"
+	"github.com/jorgepuerta00/accountapi-master/pkg/seed"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -21,69 +19,133 @@ func TestExampleTestSuite(t *testing.T) {
 
 type APIRecruitClientTestSuite struct {
 	suite.Suite
-	httpClientMock *httpClientMock
-	client         *APIRecruitClient
+	httpClientMock   *httpClientMock
+	client           *APIRecruitClient
+	seed             *seed.Seeding
+	testAccountsData []model.Account
 }
 
 func (t *APIRecruitClientTestSuite) SetupTest() {
 	t.httpClientMock = &httpClientMock{}
 	logger := logrus.New()
-	t.client = NewAPIRecruitClient(logger, os.Getenv("BASE_URL"))
-}
-
-func TestCustomRequest(c *APIRecruitClientTestSuite, t *testing.T, r *http.Request, expected string) {
-	t.Helper()
-	assert.Equal(c.T(), expected, r.Method)
-}
-
-func (c *APIRecruitClientTestSuite) TestClient_Delete(t *testing.T) {
-	req, _ := c.client.customRequest("DELETE", "/", nil)
-	TestCustomRequest(c, t, req.Request, "DELETE")
+	baseUrl := os.Getenv("BASE_URL")
+	t.client = NewAPIRecruitClient(logger, baseUrl)
+	t.seed = seed.NewSeeding(logger, baseUrl)
+	data, _ := t.seed.Seeding(5)
+	t.testAccountsData = data
 }
 
 func (t *APIRecruitClientTestSuite) Test_Create_Success() {
-	assert.Equal(t.T(), true, true)
-}
 
-func (t *APIRecruitClientTestSuite) Test_Delete_Success() {
-	assert.Equal(t.T(), true, true)
-}
-
-func (t *APIRecruitClientTestSuite) Test_Get_Success() {
-	ctx := context.TODO()
-	mockedJSONResponse := `[{
-		"id": "1",
-		"organisation_id": "1",
-		"type": "accounts",
-		"version": 0,
-		"attributes": {}
-	}]`
-
-	r := ioutil.NopCloser(bytes.NewReader([]byte(mockedJSONResponse)))
-
-	expectedResp := []model.Account{{
-		ID:             "1",
-		OrganisationID: "1",
+	newAccount := model.Account{
 		Type:           "accounts",
+		ID:             uuid.NewString(),
+		OrganisationID: uuid.NewString(),
 		Version:        0,
-		Attributes:     model.AccountAttributes{},
-	}}
-
-	t.httpClientMock.On("Get", mock.AnythingOfType("string")).Return(
-		&http.Response{
-			StatusCode: 200,
-			Body:       r,
+		Attributes: model.AccountAttributes{
+			Country:                 "GB",
+			BaseCurrency:            "GBP",
+			AccountNumber:           "41426819",
+			BankID:                  "400300",
+			BankIDCode:              "GBDSC",
+			Bic:                     "NWBKGB22",
+			Iban:                    "GB11NWBK40030041426819",
+			Name:                    []string{"Samantha Holder"},
+			AlternativeNames:        []string{"Sam Holder"},
+			AccountClassification:   "Personal",
+			JointAccount:            false,
+			AccountMatchingOptOut:   false,
+			SecondaryIdentification: "A1B2C3D4",
+			Switched:                false,
 		},
-		nil,
-	)
+	}
 
-	t.client.httpClient = t.httpClientMock
-
-	result, err := t.client.Get(ctx, "1")
+	result, resp, err := t.client.Create(newAccount)
 	assert.NoError(t.T(), err)
-	assert.Equal(t.T(), expectedResp, result)
+	assert.Equal(t.T(), newAccount.ID, result.ID)
+	assert.Equal(t.T(), http.StatusCreated, resp.StatusCode)
 }
 
-func (t *APIRecruitClientTestSuite) Test_GetAll_Success() {
+func (t *APIRecruitClientTestSuite) Test_Create_Duplicated() {
+
+	newAccount := model.Account{
+		Type:           "accounts",
+		ID:             t.testAccountsData[0].ID,
+		OrganisationID: uuid.NewString(),
+		Version:        0,
+		Attributes: model.AccountAttributes{
+			Country:                 "GB",
+			BaseCurrency:            "GBP",
+			AccountNumber:           "41426819",
+			BankID:                  "400300",
+			BankIDCode:              "GBDSC",
+			Bic:                     "NWBKGB22",
+			Iban:                    "GB11NWBK40030041426819",
+			Name:                    []string{"Samantha Holder"},
+			AlternativeNames:        []string{"Sam Holder"},
+			AccountClassification:   "Personal",
+			JointAccount:            false,
+			AccountMatchingOptOut:   false,
+			SecondaryIdentification: "A1B2C3D4",
+			Switched:                false,
+		},
+	}
+
+	result, resp, err := t.client.Create(newAccount)
+	assert.Error(t.T(), err)
+	assert.Equal(t.T(), model.Account{}, result)
+	assert.Equal(t.T(), http.StatusConflict, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_Delete_NotFound() {
+	result, resp, err := t.client.Delete(uuid.NewString(), 0)
+	assert.Error(t.T(), err)
+	assert.Equal(t.T(), false, result)
+	assert.Equal(t.T(), http.StatusNotFound, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_Delete_Invalid() {
+	result, resp, err := t.client.Delete("123", 0)
+	assert.Error(t.T(), err)
+	assert.Equal(t.T(), false, result)
+	assert.Equal(t.T(), http.StatusBadRequest, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_Delete_wrongVersion() {
+	result, resp, err := t.client.Delete(t.testAccountsData[0].ID, 1)
+	assert.Error(t.T(), err)
+	assert.Equal(t.T(), false, result)
+	assert.Equal(t.T(), http.StatusConflict, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_Delete_Sucess() {
+	result, resp, err := t.client.Delete(t.testAccountsData[0].ID, 0)
+	assert.NoError(t.T(), err)
+	assert.Equal(t.T(), true, result)
+	assert.Equal(t.T(), http.StatusNoContent, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_Get_Sucess() {
+	result, resp, err := t.client.Get(t.testAccountsData[0].ID)
+	assert.NoError(t.T(), err)
+	assert.Equal(t.T(), t.testAccountsData[0].ID, result.ID)
+	assert.Equal(t.T(), http.StatusOK, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_Get_Invalid() {
+	result, resp, err := t.client.Get("123")
+	assert.Error(t.T(), err)
+	assert.Equal(t.T(), model.Account{}, result)
+	assert.Equal(t.T(), http.StatusBadRequest, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_Get_NotFound() {
+	result, resp, err := t.client.Get("ad27e265-9605-4b4b-a0e5-3003ea9cc4dd")
+	assert.Error(t.T(), err)
+	assert.Equal(t.T(), model.Account{}, result)
+	assert.Equal(t.T(), http.StatusNotFound, resp.StatusCode)
+}
+
+func (t *APIRecruitClientTestSuite) Test_GetAll() {
 	assert.Equal(t.T(), true, true)
 }

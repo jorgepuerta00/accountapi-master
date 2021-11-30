@@ -41,13 +41,14 @@ services:
       - SKIP_SETCAP=1
       - VAULT_DEV_ROOT_TOKEN_ID=8fb95528-57c6-422e-9722-d2147bcba8ed
 
-  client:
+  form3client:
     build:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      - BASE_URL=http://accountapi:8080/v1/organisation/accounts
+      - BASE_URL=http://localhost:8080/v1/organisation/accounts
     depends_on:
       - accountapi
-    networks:
-      - client-form3tech
+    network_mode: host
+    volumes:
+      - .:/go/src/app

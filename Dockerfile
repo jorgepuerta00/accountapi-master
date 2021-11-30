@@ -1,7 +1,7 @@
 FROM golang:alpine
 
-# Move to working directory /build
-WORKDIR /build
+# Move to working directory /go/src/app
+WORKDIR /go/src/app
 
 # Copy and download dependency using go mod
 COPY go.mod .

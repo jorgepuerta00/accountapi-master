@@ -1,10 +1,10 @@
 package service
 
 import (
-	"context"
 	"os"
 	"testing"
 
+	"github.com/google/uuid"
 	httpclient "github.com/jorgepuerta00/accountapi-master/pkg/http-client"
 	"github.com/jorgepuerta00/accountapi-master/pkg/model"
 	"github.com/jorgepuerta00/accountapi-master/pkg/repository"
@@ -14,47 +14,59 @@ import (
 )
 
 func TestExampleTestSuite(t *testing.T) {
-	suite.Run(t, new(AccountServiecTestSuite))
+	suite.Run(t, new(AccountServiceTestSuite))
 }
 
-type AccountServiecTestSuite struct {
+type AccountServiceTestSuite struct {
 	suite.Suite
-	client  *httpclient.APIRecruitClient
 	repo    *repository.AccountRepo
 	service *AccountService
 }
 
-func (t *AccountServiecTestSuite) SetupTest() {
+func (t *AccountServiceTestSuite) SetupTest() {
 	logger := logrus.New()
-	t.client = httpclient.NewAPIRecruitClient(logger, os.Getenv("BASE_URL"))
-	t.repo = repository.NewAccountRepo(logger, t.client)
+	t.repo = repository.NewAccountRepo(logger, httpclient.NewAPIRecruitClient(logger, os.Getenv("BASE_URL")))
 	t.service = NewAccountService(logger, t.repo)
 }
 
-func (t *AccountServiecTestSuite) Test_Service_Create() {
-	assert.Equal(t.T(), true, true)
-}
-
-func (t *AccountServiecTestSuite) Test_Service_Delete() {
-	assert.Equal(t.T(), true, true)
-}
-
-func (t *AccountServiecTestSuite) Test_Service_Get() {
-	ctx := context.TODO()
-
-	expectedResp := []model.Account{{
-		ID:             "1",
-		OrganisationID: "1",
+func (t *AccountServiceTestSuite) Test_Service_Create() {
+	newAccount := model.Account{
 		Type:           "accounts",
+		ID:             uuid.NewString(),
+		OrganisationID: uuid.NewString(),
 		Version:        0,
-		Attributes:     model.AccountAttributes{},
-	}}
+		Attributes: model.AccountAttributes{
+			Country:                 "GB",
+			BaseCurrency:            "GBP",
+			AccountNumber:           "41426819",
+			BankID:                  "400300",
+			BankIDCode:              "GBDSC",
+			Bic:                     "NWBKGB22",
+			Iban:                    "GB11NWBK40030041426819",
+			Name:                    []string{"Samantha Holder"},
+			AlternativeNames:        []string{"Sam Holder"},
+			AccountClassification:   "Personal",
+			JointAccount:            false,
+			AccountMatchingOptOut:   false,
+			SecondaryIdentification: "A1B2C3D4",
+			Switched:                false,
+		},
+	}
 
-	result, err := t.service.Fetch(ctx, "1")
+	result, err := t.service.Create(newAccount)
+
 	assert.NoError(t.T(), err)
-	assert.Equal(t.T(), expectedResp, result)
+	assert.Equal(t.T(), newAccount.ID, result.ID)
 }
 
-func (t *AccountServiecTestSuite) Test_Service_GetAll() {
+func (t *AccountServiceTestSuite) Test_Service_Delete() {
+	assert.Equal(t.T(), true, true)
+}
+
+func (t *AccountServiceTestSuite) Test_Service_Get() {
+	assert.Equal(t.T(), true, true)
+}
+
+func (t *AccountServiceTestSuite) Test_Service_GetAll() {
 	assert.Equal(t.T(), true, true)
 }

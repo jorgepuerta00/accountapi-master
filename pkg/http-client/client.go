@@ -2,8 +2,8 @@ package httpclient
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,14 +13,10 @@ import (
 )
 
 type ExternalSource interface {
-	Create(context.Context, model.Account) (model.Account, error)
-	Delete(ctx context.Context, id string, version int) (bool, error)
-	Get(ctx context.Context, id string) (model.Account, error)
-	GetAll(context.Context) ([]model.Account, error)
-}
-
-type body struct {
-	Data interface{} `json:"data"`
+	Create(model.Account) (model.Account, *http.Response, error)
+	Delete(id string, version int) (bool, *http.Response, error)
+	Get(id string) (model.Account, *http.Response, error)
+	GetAll(model.PageParams) ([]model.Account, *http.Response, error)
 }
 
 type consumable interface {
@@ -43,88 +39,128 @@ func NewAPIRecruitClient(logger logrus.FieldLogger, baseURL string) *APIRecruitC
 	}
 }
 
-func (c APIRecruitClient) Create(ctx context.Context, account model.Account) (model.Account, error) {
-	body := body{Data: account}
+func (c APIRecruitClient) Create(account model.Account) (model.Account, *http.Response, error) {
+	body := &model.Result{Data: account}
+
 	payload := new(bytes.Buffer)
 
 	err := json.NewEncoder(payload).Encode(&body)
 	if err != nil {
-		return model.Account{}, err
+		return model.Account{}, nil, err
 	}
 
 	resp, err := c.httpClient.Post(c.baseURL, "application/json", payload)
 	if err != nil {
-		return model.Account{}, err
+		return model.Account{}, resp, err
 	}
 
 	defer resp.Body.Close()
 
-	accountResponse := model.Account{}
+	if resp.StatusCode >= 300 {
+		createResult := &model.ErrorResult{}
 
-	if err := json.NewDecoder(resp.Body).Decode(&accountResponse); err != nil {
-		c.logger.Error("APIRecruitClient.Create", "error:", err)
-		return model.Account{}, err
+		if err := json.NewDecoder(resp.Body).Decode(&createResult); err != nil {
+			c.logger.Error("APIRecruitClient.Create", "error:", createResult.ErrorMessage)
+			return model.Account{}, resp, err
+		}
+
+		return model.Account{}, resp, errors.New(createResult.ErrorMessage)
 	}
 
-	return accountResponse, nil
+	accountResult := &model.Result{}
+
+	if err := json.NewDecoder(resp.Body).Decode(&accountResult); err != nil {
+		c.logger.Error("APIRecruitClient.Create", "error:", err)
+		return model.Account{}, resp, err
+	}
+
+	return accountResult.Data, resp, nil
 }
 
-func (c APIRecruitClient) Delete(ctx context.Context, id string, version int) (bool, error) {
+func (c APIRecruitClient) Delete(id string, version int) (bool, *http.Response, error) {
 	url := fmt.Sprintf("%s/%s?version=%d", c.baseURL, id, version)
 
 	resp, err := c.customRequest(http.MethodDelete, url, nil)
 	if err != nil {
-		return false, err
+		return false, resp, err
 	}
 
 	defer resp.Body.Close()
 
-	accountResponse := model.Account{}
+	if resp.StatusCode >= 300 {
+		deleteResult := &model.ErrorResult{}
 
-	if err := json.NewDecoder(resp.Body).Decode(&accountResponse); err != nil {
-		c.logger.Error("APIRecruitClient.Create", "error:", err)
-		return false, err
+		if err := json.NewDecoder(resp.Body).Decode(&deleteResult); err != nil {
+			return false, resp, err
+		}
+
+		return false, resp, errors.New(deleteResult.ErrorMessage)
 	}
 
-	return true, nil
+	return true, resp, nil
 }
 
-func (c APIRecruitClient) Get(ctx context.Context, id string) (model.Account, error) {
+func (c APIRecruitClient) Get(id string) (model.Account, *http.Response, error) {
 	url := fmt.Sprintf("%s/%s", c.baseURL, id)
 
 	resp, err := c.httpClient.Get(url)
 	if err != nil {
-		return model.Account{}, err
+		return model.Account{}, resp, err
 	}
 
 	defer resp.Body.Close()
 
-	accountResponse := model.Account{}
+	if resp.StatusCode >= 300 {
+		deleteResult := &model.ErrorResult{}
 
-	if err := json.NewDecoder(resp.Body).Decode(&accountResponse); err != nil {
-		c.logger.Error("APIRecruitClient.Get", "error:", err)
-		return model.Account{}, err
+		if err := json.NewDecoder(resp.Body).Decode(&deleteResult); err != nil {
+			c.logger.Error("APIRecruitClient.Get", "error:", deleteResult.ErrorMessage)
+			return model.Account{}, resp, err
+		}
+
+		return model.Account{}, resp, errors.New(deleteResult.ErrorMessage)
 	}
 
-	return accountResponse, nil
+	getResponse := &model.Result{}
+
+	if err := json.NewDecoder(resp.Body).Decode(&getResponse); err != nil {
+		c.logger.Error("APIRecruitClient.Get", "error:", err)
+		return model.Account{}, resp, err
+	}
+
+	return getResponse.Data, resp, nil
 }
 
-func (c APIRecruitClient) GetAll(ctx context.Context) ([]model.Account, error) {
+func (c APIRecruitClient) GetAll(pageParams model.PageParams) ([]model.Account, *http.Response, error) {
+
+	//url := fmt.Sprintf("%s/?page[number]=%d&page[size]=%d", c.baseURL, pageParams.page, pageParams.size)
+
 	resp, err := c.httpClient.Get(c.baseURL)
 	if err != nil {
-		return []model.Account{}, err
+		return []model.Account{}, resp, err
 	}
 
 	defer resp.Body.Close()
 
-	accountResponse := []model.Account{}
+	if resp.StatusCode >= 300 {
+		deleteResult := &model.ErrorResult{}
 
-	if err := json.NewDecoder(resp.Body).Decode(&accountResponse); err != nil {
-		c.logger.Error("APIRecruitClient.GetAll", "error:", err)
-		return []model.Account{}, err
+		if err := json.NewDecoder(resp.Body).Decode(&deleteResult); err != nil {
+			c.logger.Error("APIRecruitClient.Get", "error:", deleteResult.ErrorMessage)
+			return []model.Account{}, resp, err
+		}
+
+		return []model.Account{}, resp, errors.New(deleteResult.ErrorMessage)
 	}
 
-	return accountResponse, nil
+	getallResponse := &model.ArrayResult{}
+
+	if err := json.NewDecoder(resp.Body).Decode(&getallResponse); err != nil {
+		c.logger.Error("APIRecruitClient.GetAll", "error:", err)
+		return []model.Account{}, resp, err
+	}
+
+	return getallResponse.Data, resp, nil
 }
 
 func (c *APIRecruitClient) customRequest(method string, url string, body io.Reader) (*http.Response, error) {
