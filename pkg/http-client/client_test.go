@@ -173,3 +173,15 @@ func (t *APIRecruitClientTestSuite) Test_GetAll_PagginingParams() {
 	assert.True(t.T(), len(result) > 0)
 	assert.Equal(t.T(), http.StatusOK, resp.StatusCode)
 }
+
+func (t *APIRecruitClientTestSuite) Test_SolveParamsUrl() {
+	result := solveParamsUrl(t.client.baseURL, model.PageParams{Page: 5, Size: 5})
+	assert.Contains(t.T(), result, "page")
+	assert.Contains(t.T(), result, "page")
+}
+
+func (t *APIRecruitClientTestSuite) Test_CustomRequest() {
+	resp, err := t.client.customRequest(http.MethodGet, t.client.baseURL, nil)
+	assert.NoError(t.T(), err)
+	assert.Equal(t.T(), http.StatusOK, resp.StatusCode)
+}
