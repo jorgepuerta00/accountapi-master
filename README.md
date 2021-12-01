@@ -41,10 +41,7 @@ I tried to use test-driven development practices, although not all methods were 
 ### Usage
 
 ```go
-baseUrl := os.Getenv("http://localhost:8080/v1/organisation/accounts")
-client  := httpclient.NewAPIRecruitClient(logger, baseUrl)
-repo    := repository.NewAccountRepo(logger, client)
-service := NewAccountService(logger, repo)
+service := CreateAccountService()
 
 result, err := service.Create(model.Account{...})
 result, err  = service.Delete("ad27e265-9605-4b4b-a0e5-3003ea9cc4dd", 1)

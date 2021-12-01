@@ -16,7 +16,7 @@ var (
 )
 
 func main() {
-	fmt.Println("library form3 is running")
+	fmt.Println("client library form3 build")
 }
 
 func CreateClient() (*httpclient.APIRecruitClient, error) {
