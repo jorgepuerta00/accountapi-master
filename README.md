@@ -11,7 +11,7 @@ Methods exposed:
 * List - get all accounts using pagination or not 
 * Fetch - get one account by ID
 
-## Running the tests
+### Build solution
 
 run ```docker-compose up```
 
@@ -36,7 +36,7 @@ I tried to use test-driven development practices, although not all methods were 
 * happy and unhappy path
 * tests organized 
 
-## Usage
+### Usage
 
 ```go
 baseUrl := os.Getenv("http://localhost:8080/v1/organisation/accounts")
