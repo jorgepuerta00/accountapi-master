@@ -21,7 +21,8 @@ type AccountService struct {
 
 func NewAccountService(logger logrus.FieldLogger, repo repository.AccountRepository) *AccountService {
 	return &AccountService{
-		repo: repo,
+		repo:   repo,
+		logger: logger,
 	}
 }
 
