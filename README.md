@@ -1,4 +1,4 @@
-# Name: Jorge Andres Puerta Fernandez
+# Jorge Andres Puerta Fernandez
 
 Level Golang Experience: Less 1 year
 
