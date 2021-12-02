@@ -19,23 +19,22 @@ func main() {
 	fmt.Println("client library form3 build")
 }
 
-func CreateClient() (*httpclient.APIRecruitClient, error) {
-	return httpclient.NewAPIRecruitClient(logger, baseUrl), nil
+func CreateClient() *httpclient.APIRecruitClient {
+	return httpclient.NewAPIRecruitClient(logger, baseUrl)
 }
 
-func CreateRepository(client *httpclient.APIRecruitClient) (*repository.AccountRepo, error) {
-	return repository.NewAccountRepo(logger, client), nil
+func CreateRepository(client *httpclient.APIRecruitClient) *repository.AccountRepo {
+	return repository.NewAccountRepo(logger, client)
 }
 
-func CreateService(repo *repository.AccountRepo) (*service.AccountService, error) {
-	return service.NewAccountService(logger, repo), nil
+func CreateService(repo *repository.AccountRepo) *service.AccountService {
+	return service.NewAccountService(logger, repo)
 }
 
-func CreateAccountService() (*service.AccountService, error) {
+func CreateAccountService() *service.AccountService {
+	client := CreateClient()
+	repository := CreateRepository(client)
+	service := CreateService(repository)
 
-	client, err := CreateClient()
-	repository, err := CreateRepository(client)
-	service, err := CreateService(repository)
-
-	return service, err
+	return service
 }

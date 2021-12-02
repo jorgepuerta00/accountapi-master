@@ -1,6 +1,6 @@
 # Jorge Andres Puerta Fernandez
 
-Level Golang Experience: Less 1 year
+Level Golang Experience: ~1 year
 
 ## Summary
 
@@ -21,17 +21,17 @@ run ```docker-compose up```
 
 I've tried to implement a domain-oriented solution, I've split the project into layers, the first layer is http-client which works as my data source, then I have my repository, in short, the Repository pattern allows me to easily test my application with unit tests, at the same time I'm able to separate business from data, the last layer is service, where I'm able to have a collection of repositories and sub-services that builds together the business flow  
 
-I must be honest, my DDD implementation is not complete and undoubtedly needs to be refactorized.
+### Practises Used:
 
-### Good Practises SOLID
+It's important write clean code, it's one of the core conceptos of software development, we know there are many software design approaches, patters and practises to ensure an understandable, flexible, and maintainable code base.
 
 The broad goal of the SOLID principles is to reduce dependencies so that I'm able to change one module without impacting others. Additionally, they’re intended to make designs easier to understand, maintain, and extend. Ultimately, using these design principles makes it easier for me to avoid issues and to build adaptive, effective, and agile software
 
 I've add dependency inyection on all layers, basically, I pass a dependency to another object or structure. I did this due to it allows me the creation of dependencies outside the dependant object. This is useful as I can decouple dependency creation from the object being created. 
 
-### Unit Testing and Testing Integration
+### Testing
 
-I tried to use test-driven development practices, although not all methods were covered due to time
+I tried to use test-driven development practices, basically, this works creating unit test cases before writing functional code. It is an iterative approach that combines programming, the creation of unit tests, and refactoring, although not all methods were covered due to time
 
 * coverage is upon 90%
 * every method was tested

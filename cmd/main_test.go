@@ -26,25 +26,29 @@ func (t *MainTestSuite) SetupTest() {
 }
 
 func (t *MainTestSuite) Test_Main_Create_Client() {
-	c, err := CreateClient()
+	c := CreateClient()
 	t.client = c
-	assert.NoError(t.T(), err)
+	assert.NotNil(t.T(), c)
+	assert.NotEmpty(t.T(), c)
 }
 
 func (t *MainTestSuite) Test_Main_Create_Repository() {
-	r, err := CreateRepository(t.client)
+	r := CreateRepository(t.client)
 	t.repo = r
-	assert.NoError(t.T(), err)
+	assert.NotNil(t.T(), r)
+	assert.NotEmpty(t.T(), r)
 }
 
 func (t *MainTestSuite) Test_Main_Create_Service() {
-	s, err := CreateService(t.repo)
+	s := CreateService(t.repo)
 	t.service = s
-	assert.NoError(t.T(), err)
+	assert.NotNil(t.T(), s)
+	assert.NotEmpty(t.T(), s)
 }
 
 func (t *MainTestSuite) Test_Main_Provisioning_Service() {
-	s, err := CreateAccountService()
+	s := CreateAccountService()
 	t.service = s
-	assert.NoError(t.T(), err)
+	assert.NotNil(t.T(), s)
+	assert.NotEmpty(t.T(), s)
 }

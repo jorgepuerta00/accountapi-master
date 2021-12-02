@@ -19,14 +19,12 @@ func TestClientTestSuite(t *testing.T) {
 
 type APIRecruitClientTestSuite struct {
 	suite.Suite
-	httpClientMock   *httpClientMock
 	client           *APIRecruitClient
 	seed             *seed.Seeding
 	testAccountsData []model.Account
 }
 
 func (t *APIRecruitClientTestSuite) SetupTest() {
-	t.httpClientMock = &httpClientMock{}
 	logger := logrus.New()
 	baseUrl := os.Getenv("BASE_URL")
 	t.client = NewAPIRecruitClient(logger, baseUrl)
