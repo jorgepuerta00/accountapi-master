@@ -8,7 +8,7 @@ The client library was developed using Go which consumes a Form3 API.
 
 Methods exposed:
 
-* Create - creates one account
+* Create - create one account
 * Delete - delete one account by ID
 * List - get all accounts using pagination or not 
 * Fetch - get one account by ID
