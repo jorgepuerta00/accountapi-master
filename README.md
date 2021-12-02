@@ -44,8 +44,8 @@ I tried to use test-driven development practices, basically, this works creating
 service := CreateAccountService()
 
 result, err := service.Create(model.Account{...})
-result, err  = service.Delete("ad27e265-9605-4b4b-a0e5-3003ea9cc4dd", 1)
-result, err  = service.Fetch("ad27e265-9605-4b4b-a0e5-3003ea9cc4dd")
+result, err  = service.Delete(uuid.NewString(), idVersion)
+result, err  = service.Fetch(uuid.NewString())
 result, err  = service.List(model.PageParams{})
 result, err  = service.List(model.PageParams{Page: 5, Size: 5})
 result, err  = service.List(model.PageParams{Page: 5})
