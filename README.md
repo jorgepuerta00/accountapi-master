@@ -21,7 +21,7 @@ run ```docker-compose up```
 
 I've tried to implement a domain-oriented solution, I've split the project into layers, the first layer is http-client which works as my data source, then I have my repository, in short, the Repository pattern allows me to easily test my application with unit tests, at the same time I'm able to separate business from data, the last layer is service, where I'm able to have a collection of repositories and sub-services that builds together the business flow  
 
-### Practises Used:
+### Practises Used
 
 It's important to write clean code, it's one of the core concepts of software development, we know there are many software design approaches, patterns, and practices to ensure an understandable, flexible, and maintainable code base.
 
