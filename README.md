@@ -23,11 +23,11 @@ I've tried to implement a domain-oriented solution, I've split the project into 
 
 ### Practises Used:
 
-It's important write clean code, it's one of the core conceptos of software development, we know there are many software design approaches, patters and practises to ensure an understandable, flexible, and maintainable code base.
+It's important to write clean code, it's one of the core concepts of software development, we know there are many software design approaches, patterns, and practices to ensure an understandable, flexible, and maintainable code base.
 
-The broad goal of the SOLID principles is to reduce dependencies so that I'm able to change one module without impacting others. Additionally, they’re intended to make designs easier to understand, maintain, and extend. Ultimately, using these design principles makes it easier for me to avoid issues and to build adaptive, effective, and agile software
+I've implemented SOLID principles, in my view, SOLID helps to reduce dependencies so that I'm able to change one module without impacting others. Additionally, they’re intended to make designs easier to understand, maintain, and extend. Ultimately, using these design principles makes it easier for me to avoid issues and to build adaptive, effective, and agile software
 
-I've add dependency inyection on all layers, basically, I pass a dependency to another object or structure. I did this due to it allows me the creation of dependencies outside the dependant object. This is useful as I can decouple dependency creation from the object being created. 
+For example, I've added dependency injection on all layers, basically, I pass a dependency to another object or structure. I did this due to it allows me the creation of dependencies outside the dependant object. This is useful as I can decouple dependency creation from the object being created. 
 
 ### Testing
 
