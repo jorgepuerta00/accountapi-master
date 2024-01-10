@@ -1,5 +1,3 @@
-# Jorge Andres Puerta Fernandez
-
 ## Summary
 
 The client library was developed using Go which consumes a Form3 API.
