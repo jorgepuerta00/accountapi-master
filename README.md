@@ -1,7 +1,5 @@
 # Jorge Andres Puerta Fernandez
 
-Level Golang Experience: ~1 year
-
 ## Summary
 
 The client library was developed using Go which consumes a Form3 API.
